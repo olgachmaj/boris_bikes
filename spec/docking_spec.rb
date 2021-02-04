@@ -2,24 +2,51 @@ require "boris_bikes"
 
 
 describe DockingStation do
-  it {is_expected.to respond_to :release_bike}
-  it 'gets a bike and expects bike to be working' do
-      bike = subject.release_bike
-      expect(bike).to be_working
-      #expect(Bike.working?(bike)).to eq true
+  describe "#release_bike" do
+    it {is_expected.to respond_to :release_bike}
+
+    it 'fails to release bike, if none are available' do
+      station = DockingStation.new
+      station.docked_bikes.empty?
+      expect { station.release_bike }.to raise_error "No bikes available"
+              # errors wrapped in curlys, not ()'s
+    end
+
+    it 'gets a Bike and expects Bike to be working' do
+        station = DockingStation.new
+        bike = (Bike.new)
+        station.dock(bike)
+        expect(station.release_bike).to be_a Bike
+        expect(bike).to be_working
+        #expect(Bike.working?(bike)).to eq true
+    end
   end
-  
-  it 'docks a bike at a docking station' do
-    bike = subject.release_bike # create the bike
-    # dock the bike
-    subject.dock(bike)
-    # check that the bike was docked, to pass test
-     expect(subject.docked_bikes).to include(bike)
-  end
+
+  describe "#dock" do
+    it 'docks a bike at a docking station' do
+      station = DockingStation.new
+      bike = (Bike.new)
+      expect(station.dock(bike)).to include(bike) # check that the bike was docked, to pass test
+    end
+
+    it 'wont accept more bikes than their capacity' do
+      station = DockingStation.new
+      bike1 = (Bike.new)
+      bike2 = (Bike.new)
+      bike3 = (Bike.new)
+      station.dock(bike1)
+      station.dock(bike2)
+      station.dock(bike3)
+      bike4 = (Bike.new)
+      expect { station.dock(bike4) }.to raise_error "Docking station capacity reached"
+    end
+  end 
+
+
 
 end
 
-
+# release bike if docked_bikes.notempty
 
 
 =begin
